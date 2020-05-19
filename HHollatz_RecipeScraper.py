@@ -73,7 +73,7 @@ def mkDirCategories(chefName, chefURL, path):
         if link.has_attr('href'):
             categoryLinkList.append(link['href'])
             categoryNameList.append(link.get_text())
-    counterCategories = 1
+    counterCategories = 0
     for _ in range(len(categoryLinkList)-1):    ##Creating folder-structure on path
         category = categoryNameList[counterCategories]
         categoryURL = categoryLinkList[counterCategories]
@@ -83,8 +83,10 @@ def mkDirCategories(chefName, chefURL, path):
             downloadCookBook(chefName, urlCookBook, category, path)
             categoryNameList.pop(counterCategories)
             categoryLinkList.pop(counterCategories)
-        if not os.path.exists(pathComplete):
-            os.makedirs(pathComplete)
+            counterCategories -= 1
+        else:
+            if not os.path.exists(pathComplete):
+                os.makedirs(pathComplete)
         downloadRecipes(chefName, category, categoryURL, path) #passing category lists to downloadRecipes Func
         counterCategories += 1
     print('--- Download Chef: ' + chefName + ' completed! ----')
@@ -101,23 +103,23 @@ def mkDirChefs(path): #making the Chef directories
         if link.has_attr('href'):
             chefLinkList.append(link['href'])
             chefNameList.append(link.get_text())
-    counterChefs = 26 #No. 26 is the first Chef - before are just categories to prevent duplicates
+    counterChefs = 26     #No. 26 is the first Chef - before are just categories to prevent duplicates
     for _ in range(len(chefLinkList)-1):
-        chefName = chefNameList[counterChefs]
-        chefURL = chefLinkList[counterChefs]
-        print('--- Download Chef: ' + chefName + ' started! ----')
-        pathComplete = path + chefName 
-        if not os.path.exists(pathComplete):
-            os.makedirs(pathComplete)
-        mkDirCategories(chefName, chefURL, path) #passing the lists to the categories
-        progress = round(((counterChefs - 25) / (len(chefLinkList) - 26)*100),2) #to keep the progress
-        print('--- Progress: ' + str(progress) + '% ---')
-        counterChefs += 1
+        if counterChefs != len(chefLinkList):    
+            chefName = chefNameList[counterChefs]
+            chefURL = chefLinkList[counterChefs]
+            print('--- Download Chef: ' + chefName + ' started! ----')
+            pathComplete = path + chefName 
+            if not os.path.exists(pathComplete):
+                os.makedirs(pathComplete)
+            mkDirCategories(chefName, chefURL, path) #passing the lists to the categories
+            progress = round(((counterChefs - 25) / (len(chefLinkList) - 26)*100),2) #to keep the progress
+            print('--- Progress: ' + str(progress) + '% ---')
+            counterChefs += 1
     print('!!!--- Download Completed ----!!!')
 
 
 def executer():
-    print('Please consider: Just recipes from professional Chefs will be downloaded')
     path = input('Please enter path to store the recipes: ') #Enter the path for the directories
     mkDirChefs(path)
 
